@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="PladooWriter/PladooWriter.vcxproj" Id="8a467437-0553-42e6-b799-b229634b97c9" />
+</Solution>
