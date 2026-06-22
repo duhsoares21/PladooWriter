@@ -2,8 +2,7 @@
 
 ## Overview
 
-<img width="1919" height="1029" alt="image" src="https://github.com/user-attachments/assets/59e13c4b-7e5c-47fb-849d-1214a882bbfa" />
-
+<img width="1919" height="1032" alt="image" src="https://github.com/user-attachments/assets/a236c5ae-b8c9-41af-9b9a-910da267a5f7" />
 
 This project is a small Win32 text editor written in x64 MASM. It creates a main window, attaches a standard Windows `EDIT` control as the text area, and exposes a menu with basic file actions:
 
