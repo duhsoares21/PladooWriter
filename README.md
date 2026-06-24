@@ -13,6 +13,26 @@ This project is a small Win32 text editor written in x64 MASM. It creates a main
 
 The application uses the Unicode Win32 API (`W` functions), stores text internally as UTF-16, and saves files as UTF-16LE with a BOM so Notepad and other Windows editors can detect the encoding reliably.
 
+## Downloading and Installing
+
+Pladoo Writer can be download directly from Github releases page here: https://github.com/duhsoares21/PladooWriter/releases/tag/1.0
+
+Instructions for Github:
+
+1 - Download the executable from Github releases page and Save it to a folder of your choice
+2 - Double click the executable
+
+or 
+
+You can use Packably, a package manager for Windows, to download it. 
+
+Instructions for Packably: 
+
+1 - Download Packably on https://www.packably.com.br
+2 - Install it
+3 - Run packl install pladoo-writer on your Windows terminal
+4 - use the command pladoo-writer to run the application
+
 ## Source Files
 
 ### `main.asm`
