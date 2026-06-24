@@ -19,8 +19,8 @@ Pladoo Writer can be download directly from Github releases page here: https://g
 
 Instructions for Github:
 
-1 - Download the executable from Github releases page and Save it to a folder of your choice
-2 - Double click the executable
+1. Download the executable from Github releases page and Save it to a folder of your choice
+2. Double click the executable
 
 or 
 
@@ -28,10 +28,10 @@ You can use Packably, a package manager for Windows, to download it.
 
 Instructions for Packably: 
 
-1 - Download Packably on https://www.packably.com.br
-2 - Install it
-3 - Run packl install pladoo-writer on your Windows terminal
-4 - use the command pladoo-writer to run the application
+1. Download Packably on https://www.packably.com.br
+2. Install it
+3. Run packl install pladoo-writer on your Windows terminal
+4. Use the command pladoo-writer to run the application
 
 ## Source Files
 
