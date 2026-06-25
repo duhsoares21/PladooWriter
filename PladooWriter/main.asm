@@ -185,21 +185,20 @@ WindowResized:
     mov r8, 0       ; y
 
     mov r9, r10     ; width
-    sub rsp, 38h
-        
+    
+    sub rsp, 38h        
         mov qword ptr [rsp+20h], r11   ; height
         mov qword ptr [rsp+28h], 1  ; repaint
 
         call MoveWindow
+    add rsp, 38h
 
+    sub rsp, 28h
         mov rcx, EditHWND
         mov rdx, SW_SHOW
 
-        sub rsp, 28h
-            call ShowWindow
-        add rsp, 28h
-
-    add rsp, 38h
+        call ShowWindow
+    add rsp, 28h
 
     xor rax, rax
     ret
@@ -207,7 +206,7 @@ WindowResized:
 CreateWindow:
 
     sub rsp, 28h
-    call ChildWndProc
+        call ChildWndProc
     add rsp, 28h
 
     xor rax, rax
@@ -278,7 +277,7 @@ CommandHandler:
         test rax, rax
         jz OpenUserCancelled
 
-        sub rsp, 38h
+        sub rsp, 48h
 
             lea rcx, FileNameBuffer
             mov rdx, GENERIC_READ
@@ -291,7 +290,7 @@ CommandHandler:
 
             call CreateFileW
 
-        add rsp, 38h
+        add rsp, 48h
 
         mov hFile, rax
 
@@ -302,7 +301,7 @@ CommandHandler:
 
         OpenHandleOK:
 
-        sub rsp, 28h
+        sub rsp, 38h
 
             mov rcx, hFile
             mov rdx, OFFSET FileByteBuffer
@@ -313,7 +312,7 @@ CommandHandler:
 
             call ReadFile
 
-        add rsp, 28h
+        add rsp, 38h
 
         test rax, rax
         jnz ReadFileOK
@@ -451,7 +450,7 @@ CommandHandler:
         test rax, rax
         jz UserCancelled
 
-        sub rsp, 38h
+        sub rsp, 48h
 
         lea rcx, FileNameBuffer
         mov rdx, GENERIC_WRITE
@@ -464,44 +463,42 @@ CommandHandler:
 
         call CreateFileW
 
+        add rsp, 48h
+
+        mov hFile, rax
+
+        cmp rax, -1
+        jne HandleOK
+
+        int 3
+
+        HandleOK:
+
+        mov rcx, hFile
+        mov rdx, OFFSET Utf16Bom
+        mov r8d, 2
+        lea r9, BytesWritten
+
+        sub rsp, 38h
+            mov qword ptr [rsp+20h], 0
+            call WriteFile
         add rsp, 38h
 
-        sub rsp, 28h
+        test rax, rax
+        jz WriteFileDone
 
-            mov hFile, rax
+        mov rcx, hFile
+        mov rdx, OFFSET TextBuffer
+        mov r8d, EditTextLength
+        shl r8d, 1
+        lea r9, BytesWritten
 
-            cmp rax, -1
-            jne HandleOK
-
-            int 3
-
-            HandleOK:
-
-            mov rcx, hFile
-            mov rdx, OFFSET Utf16Bom
-            mov r8d, 2
-            lea r9, BytesWritten
-
+        sub rsp, 38h
             mov qword ptr [rsp+20h], 0
-
             call WriteFile
+        add rsp, 38h
 
-            test rax, rax
-            jz WriteFileDone
-
-            mov rcx, hFile
-            mov rdx, OFFSET TextBuffer
-            mov r8d, EditTextLength
-            shl r8d, 1
-            lea r9, BytesWritten
-
-            mov qword ptr [rsp+20h], 0
-
-            call WriteFile
-
-            WriteFileDone:
-        
-        add rsp, 28h
+        WriteFileDone:
 
         test rax, rax
         jnz WriteFileOK
@@ -539,7 +536,6 @@ WndProc ENDP
 ; =========================================================
 
 main PROC
-
     mov rcx, SM_CXSCREEN
     sub rsp, 28h
         call GetSystemMetrics
@@ -562,21 +558,20 @@ main PROC
 
     mov hBgBrush, rax 
 
-    sub rsp, 78h
-
     ; ----------------------------------------
     ; Fill WNDCLASSEXW
     ; ----------------------------------------
 
-    mov dword ptr [WndClass+WC_cbSize], SIZEOF WNDCLASSEXW
+    sub rsp, 28h
+        mov dword ptr [WndClass+WC_cbSize], SIZEOF WNDCLASSEXW
+        mov dword ptr [WndClass+WC_style], 0
 
-    mov dword ptr [WndClass+WC_style], 0
+        lea rax, WndProc
+        mov qword ptr [WndClass+WC_lpfnWndProc], rax
 
-    lea rax, WndProc
-    mov qword ptr [WndClass+WC_lpfnWndProc], rax
-
-    xor rcx, rcx
-    call GetModuleHandleW
+        xor rcx, rcx
+        call GetModuleHandleW
+    add rsp, 28h
 
     mov hEditInstance, rax
 
@@ -584,12 +579,18 @@ main PROC
     mov edx, IDI_MAINICON
     mov r8d, IMAGE_ICON
     mov r9d, 32
+
+    sub rsp, 38h
+
     mov qword ptr [rsp+20h], 32
     
     xor rax, rax
     mov qword ptr [rsp+28h], rax
     
     call LoadImageW
+
+    add rsp, 38h
+
     mov hMainIcon, rax
 
     mov rcx, hEditInstance
@@ -597,11 +598,14 @@ main PROC
     mov r8d, IMAGE_ICON
     mov r9d, 16
 
-    mov qword ptr [rsp+20h], 16
-    xor rax, rax
-    mov qword ptr [rsp+28h], rax
+    sub rsp, 38h
+        mov qword ptr [rsp+20h], 16
+        xor rax, rax
+        mov qword ptr [rsp+28h], rax
 
-    call LoadImageW
+        call LoadImageW
+    add rsp, 38h
+
     mov hSmallIcon, rax
 
     mov rax, hEditInstance
@@ -624,7 +628,10 @@ main PROC
     mov qword ptr [WndClass+WC_lpszClassName], rax
 
     lea rcx, WndClass
+
+    sub rsp, 28h
     call RegisterClassExW
+    add rsp, 28h
 
     ; ----------------------------------------
     ; Create Window
@@ -633,7 +640,9 @@ main PROC
     test eax,eax
     jnz RegOK
 
+    sub rsp, 28h
     call GetLastError
+    add rsp, 28h
     int 3            ; Registration failed
 
     RegOK:
@@ -642,6 +651,8 @@ main PROC
     lea rdx, ClassName
     lea r8, WindowTitle 
     mov r9d, WS_OVERLAPPEDWINDOW
+
+    sub rsp, 68h
 
     mov qword ptr [rsp+CW_X],      0
     mov qword ptr [rsp+CW_Y],      0
@@ -662,6 +673,8 @@ main PROC
 
     call CreateWindowExW
 
+    add rsp, 68h
+
     test rax,rax
     jnz CreateOK
 
@@ -676,13 +689,18 @@ main PROC
     mov edx, WM_SETICON
     mov r8d, ICON_BIG
     mov r9, hMainIcon
-    call SendMessageW
+    sub rsp, 28h
+        call SendMessageW
+    add rsp, 28h
 
     mov rcx, rbx
     mov edx, WM_SETICON
     mov r8d, ICON_SMALL
     mov r9, hSmallIcon
-    call SendMessageW
+
+    sub rsp, 28h
+        call SendMessageW
+    add rsp, 28h
 
     ; ----------------------------------------
     ; Show Window
@@ -690,11 +708,15 @@ main PROC
 
     mov rcx, rbx
     mov edx, SW_SHOW
-    call ShowWindow
+    sub rsp, 28h
+        call ShowWindow
+    add rsp, 28h
 
     mov rcx, rbx
-
-    call UpdateWindow
+    
+    sub rsp, 28h
+        call UpdateWindow
+    add rsp, 28h
 
 MessageLoop:
 
@@ -703,25 +725,32 @@ MessageLoop:
     xor r8, r8
     xor r9, r9
 
-    call GetMessageW
+    sub rsp, 28h
+        call GetMessageW
+    add rsp, 28h
 
     test eax, eax
     jz ExitProgram
 
     lea rcx, MsgData
-    call TranslateMessage
+    sub rsp, 28h
+        call TranslateMessage
+    add rsp, 28h
 
     lea rcx, MsgData
-    call DispatchMessageW
+
+    sub rsp, 28h
+        call DispatchMessageW
+    add rsp, 28h
 
     jmp MessageLoop
 
 ExitProgram:
 
     xor ecx, ecx
-    call ExitProcess
-
-add rsp, 68h
+    sub rsp, 28h
+        call ExitProcess
+    add rsp, 28h
 
 main ENDP
 
